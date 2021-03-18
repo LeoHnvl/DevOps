@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-dev
+spec:
+  storageClassName: generic
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 3Gi

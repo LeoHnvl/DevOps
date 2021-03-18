@@ -1,0 +1,64 @@
+apiVersion: app/v1
+kind: DeamonSet
+metadata:
+  name: cadvisor
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: cadvisor
+  template:
+    metadat:
+      labels:
+      app: cadvisor
+      version: latest
+    spec:
+      serviceAccountName: cadvisor
+    containers:
+    - name: cadvisor
+      image: google/cadvisor:latest
+      resources:
+        limits:
+          memory: 200Mi
+        resquest:
+          cpu: 100m
+          memory: 200Mi
+      volumeMounts:
+      - name: roofts
+        mountPath: /rootfs
+        readOnly: true
+      - name: var-run
+        mountPath: /var/run
+        readOnly: true
+      - name: sys
+        mountPath: sys
+        readOnly: true
+      - name: docker
+        mountPath: /var/lib/docker
+        readOnly: true
+      - name: disk
+        mountPath: /dev/disk
+        readOnly: true
+      ports:
+        -name: http
+        containerPort: 8080
+        protocol: TCP
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      restatPolicy: Always
+      volumes:
+      - name: roofts
+        hostPath:
+          path: /
+      - name: var-run
+        hostPath:
+          path: /var/run
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: docker
+        hostPath:
+          path: /var/lib/docker
+      - name: disk
+        hostPath:
+          path: /dev/disk

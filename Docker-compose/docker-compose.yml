@@ -1,0 +1,65 @@
+version: "3"
+
+services:
+
+    poll:
+        build: './poll'
+        restart: always
+        ports:
+            - "5000:80"
+        networks:
+            - poll-tier
+        container_name: poll
+        environment:
+            - poll=1
+
+    result:
+        build: './result'
+        restart: always
+        ports:
+            - "5001:80"
+        networks: 
+            - result-tier
+        container_name: result
+        environment:
+            - result=1
+
+    redis:
+        image: "redis:alpine"
+        restart: always
+        ports:
+            - "6379:6379"
+        networks:
+            - poll-tier
+            - back-tier
+        container_name: redis
+
+    worker:
+        build: './worker'
+        restart: always
+        networks:
+            - back-tier
+        container_name: worker
+        environment:
+            - worker=1
+
+    db:
+        image: "postgres"
+        restart: always
+        networks:
+            - result-tier
+            - back-tier
+        volumes:
+            - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+            - ./db-data:/var/lib/postgresql/db-data
+        container_name: db
+        environment:
+            - db=1
+
+networks:
+    poll-tier : {}
+    result-tier : {}
+    back-tier : {}
+
+volumes:
+    db-data: {}

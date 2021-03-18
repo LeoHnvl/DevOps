@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: default
+  name: worker
+  labels:
+    app: worker
+spec:
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      name: worker
+      labels:
+        app: worker
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: worker
+          image: epitechcontent/t-dop-600-worker:k8s
+          resources:
+            limits:
+              memory: "256Mi"
+          envFrom:
+          - name: REDIS_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: redis
+                key: redis_host
+          - name: POSTGRES_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_host
+          - name: POSTGRES_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: postgres_config
+                key: postgres_port
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_db
+          - name: POSTGRES_USER
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: postgres-config
+                key: postgres_password

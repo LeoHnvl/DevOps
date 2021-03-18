@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: default
+  labels:
+    app: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      name: postgres
+      labels:
+        app: postgres
+    spec:
+      restartPolicy: Always
+      containers:
+      - name: postgres
+        image: postgres:12
+        ports:
+        - containerPort: 5432
+      volumes:
+        -name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-dev
+      volumeMounts:
+        -name: postgres-data
+          mountPath: /var/lib/postgresql/data/data
+      envFrom:
+      - name: POSTGRES_DB
+        valueFrom:
+          configMapKeyRef:
+            name: postgres
+            key: postgres_db
+      - name: POSTGRES_USER
+        valueFrom:
+          configMapKeyRef:
+            name: postgres
+            key: postgres_user
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          configMapKeyRef:
+            name: postgres
+            key: postgres_password
